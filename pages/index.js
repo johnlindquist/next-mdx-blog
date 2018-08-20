@@ -1,15 +1,28 @@
-import getConfig from "next/config"
+const postFileNames =
+  preval`
+module.exports = require("fs").readdirSync("./posts")
+` || []
 
-const { publicRuntimeConfig: config = {} } = getConfig()
+const posts = postFileNames.map(name => {
+  const {
+    default: Component,
+    meta: { title }
+  } = require("../posts/" + name)
+
+  return {
+    Component,
+    title
+  }
+})
 
 export default () => (
   <div>
     <h1>My Blog</h1>
-    {(config.posts || []).map(post => {
-      const { default: Post } = require("../posts/" +
-        post)
-
-      return <Post key={post} />
-    })}
+    {posts.map(post => (
+      <>
+        <h2>{post.title}</h2>
+        <post.Component />
+      </>
+    ))}
   </div>
 )
