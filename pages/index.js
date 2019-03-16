@@ -1,28 +1,38 @@
+import Link from 'next/link';
+
 const postFileNames =
   preval`
-module.exports = require("fs").readdirSync("./posts")
-` || []
+const fs = require("fs");
+const path = require("path");
+module.exports = fs.readdirSync("./pages/").filter((file) =>
+  path.extname(file).toLowerCase() === '.md'
+);
+` || [];
 
 const posts = postFileNames.map(name => {
   const {
     default: Component,
     meta: { title }
-  } = require("../posts/" + name)
+  } = require('../pages/' + name);
 
   return {
     Component,
-    title
-  }
-})
+    title,
+    path: `/${name.replace('.md', '')}`
+  };
+});
 
 export default () => (
   <div>
     <h1>My Blog</h1>
     {posts.map(post => (
-      <>
-        <h2>{post.title}</h2>
-        <post.Component />
-      </>
+      <div key={`post-${post.title}`}>
+        <Link href={post.path}>
+          <a>
+            <h2>{post.title}</h2>
+          </a>
+        </Link>
+      </div>
     ))}
   </div>
-)
+);
